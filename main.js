@@ -1,10 +1,8 @@
 function handleLogin() {
     const username = document.getElementById('username').value;
     localStorage.setItem('username', username);
-    // Перенаправление на main.html
     window.location.href = 'main.html';
 }
-
 
 if (document.getElementById('loginBtn')) {
     document.getElementById('loginBtn').addEventListener('click', handleLogin);
@@ -17,11 +15,15 @@ function editTask(li) {
     li.innerHTML = '';
     li.appendChild(input);
     input.focus();
+
     const saveEdit = function() {
         const newText = input.value.trim() || 'Untitled Task';
-        li.innerHTML = `${newText} <span class="edit-icon" style="cursor: pointer; margin-left: 10px;">✏️</span>`;
-        li.querySelector('.edit-icon').addEventListener('click', () => editTask(li));
+        li.innerHTML = `${newText} <span class="edit-icon" style="cursor: pointer; margin-left: 10px;">✏️</span>` +
+                       `<span class="delete-icon" style="cursor: pointer; margin-left: 10px;">❌</span>`+
+                       `<input type="checkbox" class="сompletedtask">`;
+        // Обработчики больше не добавляем вручную — всё через делегирование
     };
+
     input.addEventListener('blur', saveEdit);
     input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -36,8 +38,10 @@ function addTask() {
     const task = taskInput.value.trim();
     if (task) {
         const li = document.createElement('li');
-        li.innerHTML = `${task} <span class="edit-icon" style="cursor: pointer; margin-left: 10px;">✏️</span>`;
-        li.querySelector('.edit-icon').addEventListener('click', () => editTask(li));
+        li.innerHTML = `${task} <span class="edit-icon" style="cursor: pointer; margin-left: 10px;">✏️</span>` +
+                       `<span class="delete-icon" style="cursor: pointer; margin-left: 10px;">❌</span>`+
+                       `<input type="checkbox" class="сompletedtask">`;
+        // Обработчики не добавляем — будут обработаны через делегирование
         taskList.appendChild(li);
         taskInput.value = '';
     }
@@ -50,4 +54,19 @@ if (document.getElementById('addTaskBtn')) {
 if (document.getElementById('userDisplay')) {
     const username = localStorage.getItem('username') || 'Guest';
     document.getElementById('userDisplay').textContent = username;
+}
+
+
+const taskList = document.getElementById('taskList');
+if (taskList) {
+    taskList.addEventListener('click', function(e) {
+        const target = e.target;
+        if (target.classList.contains('delete-icon')) {
+            // Удаляем родительский <li> при клике на корзину
+            target.closest('li').remove();
+        } else if (target.classList.contains('edit-icon')) {
+            // Запускаем редактирование при клике на карандаш
+            editTask(target.closest('li'));
+        }
+    });
 }
